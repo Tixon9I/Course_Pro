@@ -1,7 +1,9 @@
 ﻿// Андрусенко
 
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Task1
 {
@@ -158,6 +160,138 @@ namespace Task1
             return indexes.ToArray();
         }
 
+        // Написати програму, яка виводить число літерами. Приклад: 117 - сто сімнадцять (сподіваюсь, я правильно зрозуміла Вас, програма гручка до змін умови :))
+
+        static void NumberToString (long number)
+        {
+            if (number == 0)
+                Console.WriteLine("Нуль");
+
+            var result = string.Empty;
+
+            if (number < 0)
+                result += "- ";
+
+            if ((number / 1000000) > 0)
+                result += SearchMillion(number);
+            if ((number / 1000) > 0)
+                result += SearchThousand(number);
+            if ((number / 100) % 10 > 0)
+                result += SearchHundred(number);
+            if ((number % 100) > 9 && (number % 100) < 20)
+            {
+                result += SearchNumbersToTwelve(number);
+                Console.WriteLine(result);
+                return;
+            }
+            if ((number % 100) >= 20)
+                result += SearchDozens(number);
+            if ((number % 10) > 0)
+                result += SearchDigit(number);
+
+                Console.WriteLine(result);
+        }
+
+        static string SearchDigit(long value)
+        {
+            string[] digits = { "один", "два", "три", "чотири", "п'ять", "шiсть", "сiм", "вiсiм", "дев'ять" };
+
+            var result = string.Empty;
+
+            return result = digits[(value % 10) - 1];
+        }
+
+        static string SearchNumbersToTwelve(long value)
+        {
+            string[] numbersToTwelve = { "десять", "одинадцять", "дванадцять", "тринадцять", "чотирнадцять", "п'ятнадцять", "шiстнадцять", "сiмнадцять", "вiсiмнадцять", "дев'ятнадцять" };
+
+            var result = string.Empty;
+
+            switch (value % 100)
+            {
+                case 10: result = numbersToTwelve[0]; break;
+                case 11: result = numbersToTwelve[1]; break;
+                case 12: result = numbersToTwelve[2]; break;
+                case 13: result = numbersToTwelve[3]; break;
+                case 14: result = numbersToTwelve[4]; break;
+                case 15: result = numbersToTwelve[5]; break;
+                case 16: result = numbersToTwelve[6]; break;
+                case 17: result = numbersToTwelve[7]; break;
+                case 18: result = numbersToTwelve[8]; break;
+                case 19: result = numbersToTwelve[9]; break;
+            }
+
+            return result;
+        }
+
+        static string SearchDozens(long value)
+        {
+            string[] dozens = { "двадцять ", "тридцять ", "сорок ", "п'ятдесят ", "шiстдесят ", "сiмдесят ", "вiсiмдесят ", "дев'яносто " };
+
+            var result = string.Empty;
+
+            return result = dozens[(value % 100) / 10 - 2];
+        }
+
+        static string SearchHundred(long value)
+        {
+            string[] hundreds = { "сто ", "двiстi ", "триста ", "чотириста ", "п'ятсот ", "шiстсот ", "сiмсот ", "вiсiмсот ", "дев'ятсот " };
+
+            var result = string.Empty;
+
+            return result = hundreds[(value / 100) % 10 - 1];
+        }
+
+        static string SearchThousand(long value)
+        {
+            var result = string.Empty;
+
+            if ((value / 1000) % 1000 >= 100)
+                result += SearchHundred((value / 1000) % 1000);
+            if (((value / 1000) % 1000) % 100 >= 20 && ((value / 1000) % 1000) % 100 < 100)
+                result += SearchDozens((value / 1000) % 1000);
+            if (((value / 1000) % 1000) % 100 > 9 && ((value / 1000) % 1000) % 100 < 20)
+                result += SearchNumbersToTwelve((value / 1000) % 1000);
+            else if (((value / 1000) % 1000) % 10 < 9 && ((value / 1000) % 1000) % 10 > 0)
+                result += SearchDigit((value / 1000) % 1000);
+
+            return $"{result} тисяч ";
+        }
+
+        static string SearchMillion(long value)
+        {
+            var result = string.Empty;
+
+            if ((value / 1000000) >= 100)
+                result += SearchHundred(value / 1000000);
+            if ((value / 1000000) % 100 >= 20 && (value / 1000000)% 100 < 100)
+                result += SearchDozens(value / 1000000);
+            if ((value / 1000000) % 100 > 9 && (value / 1000000) % 100 < 20)
+                result += SearchNumbersToTwelve(value / 1000000);
+            else if ((value / 1000000) % 10 < 9 && (value / 1000000) % 10 > 0)
+                result += SearchDigit(value / 1000000);
+
+            return $"{result} мiльйон ";
+        }
+
+
+        // Поміняти місцями значення двох змінних (типу int) (без використання 3й)
+
+        static void SwapValues()
+        {
+            var x = 10;
+            var y = 12;
+
+            Console.WriteLine($" x = {x} y = {y}");
+
+            x = x + y;
+            y = x - y;
+
+            x -= y;
+
+            Console.WriteLine($" x = {x} y = {y}");
+        }
+
         static void Main(string[] args)
         {
             // Task 1
@@ -183,6 +317,12 @@ namespace Task1
                 Console.WriteLine(i);
             }
             */
+
+            // Task 4
+            //NumberToString(17018019);
+
+            // Task 5
+            SwapValues();
         }
     }
 }
