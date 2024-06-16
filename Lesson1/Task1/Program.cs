@@ -59,26 +59,31 @@ namespace Task1
             var line = "Лондон, Рим, Париж";
             var symbol = ',';
 
-            var arrayOfLines = new string[0];
-            StringBuilder sb = new StringBuilder();
+            var length = 1;
+
+            foreach (var sym in line)
+                if (sym.Equals(symbol))
+                    length++;
+
+            var arrayOfLines = new string[length];
+
+            var start = 0;
+            var index = 0;
 
             for (var i = 0; i < line.Length; i++)
             {
                 if (line[i].Equals(symbol))
                 {
-                    Array.Resize(ref arrayOfLines, arrayOfLines.Length + 1);
-                    arrayOfLines[arrayOfLines.Length - 1] = sb.ToString().Trim();
-                    sb.Clear();
+                    arrayOfLines[index++] = line.Substring(start, i - start).Trim();
+
+                    start = i + 1;
                 }
-                else
-                    sb.Append(line[i]);
             }
 
-            Array.Resize(ref arrayOfLines, arrayOfLines.Length + 1);
-            arrayOfLines[arrayOfLines.Length - 1] = sb.ToString().Trim();
+            arrayOfLines[index] = line.Substring(start).Trim();
 
             Console.Write("Result splitting of line: ");
-            foreach(var lline in  arrayOfLines)
+            foreach (var lline in arrayOfLines)
             {
                 Console.Write($"\n{lline}");
             }
