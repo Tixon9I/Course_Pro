@@ -3,7 +3,6 @@
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Task1
 {
@@ -207,21 +206,7 @@ namespace Task1
 
             var result = string.Empty;
 
-            switch (value % 100)
-            {
-                case 10: result = numbersToTwelve[0]; break;
-                case 11: result = numbersToTwelve[1]; break;
-                case 12: result = numbersToTwelve[2]; break;
-                case 13: result = numbersToTwelve[3]; break;
-                case 14: result = numbersToTwelve[4]; break;
-                case 15: result = numbersToTwelve[5]; break;
-                case 16: result = numbersToTwelve[6]; break;
-                case 17: result = numbersToTwelve[7]; break;
-                case 18: result = numbersToTwelve[8]; break;
-                case 19: result = numbersToTwelve[9]; break;
-            }
-
-            return result;
+            return result = numbersToTwelve[(value % 100) - 10];
         }
 
         static string SearchDozens(long value)
@@ -284,6 +269,11 @@ namespace Task1
 
             Console.WriteLine($" x = {x} y = {y}");
 
+            //x = x ^ y;
+            //y = x ^ y;
+
+            //x ^= y;
+
             x = x + y;
             y = x - y;
 
@@ -322,7 +312,7 @@ namespace Task1
             //NumberToString(17018019);
 
             // Task 5
-            SwapValues();
+            //SwapValues();
         }
     }
 }
