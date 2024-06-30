@@ -4,43 +4,11 @@
     {
         static void Main(string[] args)
         {
+            CardGame game = new CardGame();
             Cards cards = new Cards();
+            Statistics stats = new Statistics();
 
-            CardGame game = new CardGame(cards);
-
-            var listCard = game.OrganizedCards();
-
-            // -------------------------------------------------------
-
-            // Функції, котрі можна виконувати над списком карт
-
-            //var swapCards = game.SwapCards(listCard);
-
-            //foreach (var card in swapCards)
-            //    Console.Write($"{card} ");
-
-            //Console.WriteLine();
-
-            //var positionAces = game.FoundingForAllAces(swapCards);
-
-            //foreach (var card in positionAces)
-            //    Console.Write($"{card} ");
-
-            //var startSpades = game.SpadeCardsToStart(swapCards);
-
-            //foreach (var card in startSpades)
-            //    Console.Write($"{card} ");
-
-            //Console.WriteLine();
-
-            //var sortCards = game.SortingCards(swapCards);
-
-            //foreach (var card in sortCards)
-            //    Console.Write($"{card} ");
-
-            //-------------------------------------------------------
-
-            // Сама гра
+            var listCard = cards.OrganizedCards();
 
             var stopLoop = true;
             var keyContinue = false;
@@ -66,9 +34,9 @@ If everything is clear, enter ""C"" to start the game or exit with ""E"": ");
                 if (key.Equals("C"))
                 {
                     Console.Clear();
-                    var number = random.Next(0, 2); // Визначає послідовність гравців (0 - перший, 1 - другий)
+                    var leadPlayer = random.Next(0, 2);
 
-                    game.GameThroughPlayer(listCard, number);
+                    game.MainCycleGame(listCard, leadPlayer);
 
                     keyContinue = true;
                 }
@@ -82,7 +50,7 @@ If everything is clear, enter ""C"" to start the game or exit with ""E"": ");
                 {
                     Console.Clear();
                     keyContinue = false;
-                    var statistics = game.ViewStatisticsGames();
+                    var statistics = stats.ViewStatisticsGames();
 
                     Console.WriteLine($"Your last game/s:");
 
