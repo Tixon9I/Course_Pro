@@ -7,24 +7,42 @@ namespace CardGame
     /// </summary>
     internal class Player
     {
-        public int _sumPlayer { get; set; }
-        public List<string> _cardsPlayer { get; set; }
+        public int SumPlayer { get; set; }
+        public List<string> CardsPlayer { get; }
         
         public Player()
         {
-            _cardsPlayer = new List<string>();
-            _cardsPlayer.Capacity = 6;
-            
+            CardsPlayer = new List<string>();
+            CardsPlayer.Capacity = 6;
+        }
+
+        public void Clear()
+        {
+            CardsPlayer.Clear();
         }
 
         public void PrintInfo()
         {
             var builder = new StringBuilder();
 
-            foreach (var card in _cardsPlayer)
+            foreach (var card in CardsPlayer)
                 builder.Append(" " + card.ToString());
 
-            Console.WriteLine($"Cards:{builder.ToString()}. Sum = {_sumPlayer}");
+            Console.WriteLine($"Cards:{builder.ToString()}. Sum = {SumPlayer}");
+        }
+
+        public void GetCardValue(List<string> cards)
+        {
+            SumPlayer = 0;
+
+            foreach (var card in cards)
+            {
+                var cardTitle = card.Substring(1);
+
+                if (Enum.TryParse(cardTitle, true, out CardValue cardValue))
+                    SumPlayer += (int)cardValue;
+                
+            }
         }
     }
 }

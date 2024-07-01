@@ -1,35 +1,14 @@
 ﻿namespace CardGame
 {
-    enum Title
-    {
-        Six = 6,
-        Seven,
-        Eight,
-        Nine,
-        Ten,
-        J,
-        Q,
-        K,
-        A
-    }
-
-    enum Suit
-    {
-        D,
-        H,
-        C,
-        S
-    }
-
     struct Card
     {
-        public readonly Title _title;
-        public readonly Suit _suit;
+        public readonly Title Title;
+        public readonly Suit Suit;
 
         public Card(Suit suit, Title title)
         {
-            _title = title;
-            _suit = suit;
+            Title = title;
+            Suit = suit;
         }
     }
 
@@ -38,13 +17,13 @@
     /// </summary>
     internal class Deck
     {
-        public List<Card> _cards = new List<Card>();
+        private List<Card> _cards = new List<Card>();
 
         public Deck()
         {
             OrganizedCards();
         }
-
+        
         private void OrganizedCards()
         {
             foreach (Suit suit in Enum.GetValues(typeof(Suit)))
@@ -72,7 +51,7 @@
 
             var index = 0;
             for (var i = 0; i < _cards.Count; i++)
-                if (_cards[i]._title.Equals(Title.A))
+                if (_cards[i].Title.Equals(Title.Ace))
                     positionAces[index++] += i;
 
             return positionAces;
@@ -88,7 +67,7 @@
                 {
                     break;
                 }
-                else if (_cards[i]._suit.Equals(Suit.S))
+                else if (_cards[i].Suit.Equals(Suit.S))
                 {
                     spadeCards++;
 
@@ -115,7 +94,7 @@
                     indexSuit = 0;
                     indexTitle++;
                 }
-                if ((_cards[i]._suit.Equals((Suit)indexSuit) && _cards[i]._title.Equals((Title)indexTitle)))
+                if ((_cards[i].Suit.Equals((Suit)indexSuit) && _cards[i].Title.Equals((Title)indexTitle)))
                 {
                     fourOfAKindCounter++;
                     var temp = _cards[i];
@@ -134,19 +113,7 @@
         {
             Console.Write("Deck: ");
             foreach (var card in _cards)
-            {
-                string titleString;
-                if ((int)card._title >= 6 && (int)card._title <= 10)
-                {
-                    titleString = ((int)card._title).ToString();
-                }
-                else
-                {
-                    titleString = card._title.ToString();
-                }
-
-                Console.Write($"{card._suit}{titleString} ");
-            }
+                Console.Write($"{card.Suit}{card.Title.ToString()} ");
         }
 
         public List<string> ConvertDeckToStringList()
@@ -155,17 +122,7 @@
 
             foreach (var card in _cards)
             {
-                string titleString;
-                if (card._title >= Title.Six && card._title <= Title.Ten)
-                {
-                    titleString = ((int)card._title).ToString();
-                }
-                else
-                {
-                    titleString = card._title.ToString();
-                }
-
-                string cardString = $"{card._suit}{titleString}";
+                string cardString = $"{card.Suit}{card.Title.ToString()}";
                 cardStrings.Add(cardString);
             }
 
