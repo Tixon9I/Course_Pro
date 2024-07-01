@@ -5,14 +5,14 @@
     /// </summary>
     internal class CardGame
     {
-        private readonly List<KeyValuePair<string, int>> cardValue;
-        private Players players = new Players();
-        private Cards crds = new Cards();
-        private Statistics statistics = new Statistics();
-
+        private readonly List<KeyValuePair<string, int>> _cardValue;
+        private Player _player = new Player();
+        private Player _computer = new Player();
+        private Deck _deck = new Deck();
+        
         public CardGame()
         {
-            cardValue = new List<KeyValuePair<string, int>>()
+            _cardValue = new List<KeyValuePair<string, int>>()
             {
                 new KeyValuePair<string, int>("6", 6),
                 new KeyValuePair<string, int>("7", 7),
@@ -25,7 +25,7 @@
                 new KeyValuePair<string, int>("A", 11)
             };
 
-            cardValue.Capacity = 9;
+            _cardValue.Capacity = 9;
         }
 
         /// <summary>
@@ -33,20 +33,35 @@
         /// </summary>
         /// <param name="cards"></param>
         /// <param name="leadPlayer"></param>
-        public void MainCycleGame(List<string> cards, int leadPlayer)
+        public void MainCycleGame()
         {
+            var rng = new Random();
+
+            var leadPlayer = rng.Next(0, 2);
+
+            _deck.MixCards();
+
+            var cards = _deck.ConvertDeckToStringList();
+
+            //foreach (var card in cards)
+            //    Console.Write(card + " ");
+
+            InitialGame(cards, leadPlayer);
+
             var stopLoop = true;
             var countRound = 0;
             var skipCounter = 0;
-            var result = string.Empty;
-
-            InitialGame(cards, leadPlayer);
+            Player winner = null;
 
             while (stopLoop)
             {
                 Console.WriteLine($"\n----Round #{++countRound}----");
 
-                players.PrintInfo();
+                Console.WriteLine("You:");
+                _player.PrintInfo();
+      
+                Console.WriteLine("\nComputer:");
+                _computer.PrintInfo();
 
                 Console.Write("\nNow choose an action: take another card or not (Y or N): ");
                 var key = Console.ReadLine();
@@ -55,46 +70,51 @@
                 {
                     ChooseCard(leadPlayer, cards, skipCounter, "player");
 
-                    result = CheckResultPlayers();
+                    winner = CheckResultPlayers();
                 }
                 else if (key.Equals("N"))
                 {
-                    skipCounter++;
+                    skipCounter = 1;
 
                     skipCounter = ChooseCard(leadPlayer, cards, skipCounter);
 
-                    if (skipCounter == 2)
-                    {
-                        Console.Clear();
-
-                        stopLoop = false;
-
-                        var exceptionResult = players.sumPlayer > players.sumComputer ? "You won!" : players.sumPlayer < players.sumComputer ? "Computer won!" : "It's a draw!";
-                        
-                        Console.WriteLine(exceptionResult);
-
-                        players.PrintInfo();
-                        statistics.ViewStatisticsGames(exceptionResult);
-
-                        result = "Continue";
-                    }
-                    else
-                        result = CheckResultPlayers();
+                    winner = CheckResultPlayers();
                 }
                 else
                     countRound--;
 
-                if (!result.Contains("Continue"))
+                if (_player._sumPlayer >= 21 || _computer._sumPlayer >= 21 || skipCounter == 2)
                 {
-                    switch (result)
+                    var resultGame = string.Empty;
+
+                    if (winner == _player)
                     {
-                        case "You won!": Console.Clear(); Console.WriteLine(result); stopLoop = false; break;
-                        case "Computer won!": Console.Clear(); Console.WriteLine(result); stopLoop = false; break;
-                        case "The game ended in a draw!": Console.Clear(); Console.WriteLine(result); stopLoop = false; break;
+                        Console.Clear();
+                        Console.WriteLine("You won!");
+                        resultGame = "You won!";
+                        stopLoop = false;
+                    }
+                    else if (winner == _computer)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Computer won!");
+                        resultGame = "Computer won!";
+                        stopLoop = false;
+                    }
+                    else if (winner == null)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("It's a draw!");
+                        resultGame = "It's a draw!";
+                        stopLoop = false;
                     }
 
-                    players.PrintInfo();
-                    statistics.ViewStatisticsGames(result);
+                    Console.WriteLine("\nYou:");
+                    _player.PrintInfo();
+                    Console.WriteLine("\nComputer:");
+                    _computer.PrintInfo();
+
+                    Statistics.AddGameToStatistics(resultGame);
                 }
 
                 Console.WriteLine();
@@ -108,24 +128,26 @@
         /// <param name="leadPlayer"></param>
         private void InitialGame(List<string> cards, int leadPlayer)
         {
-            var index = 0;
-            crds.MixCards(cards);
+            _player._cardsPlayer.Clear();
+            _computer._cardsPlayer.Clear();
 
+            var index = 0;
+            
             if (leadPlayer == 0)
             {
                 Console.WriteLine("Randomly determined who is first: you");
 
                 // Player
-                players.sumPlayer = GetCardValue(cards[index]) + GetCardValue(cards[++index]);
-                Console.WriteLine($"\nYou have received {cards[--index]} and {cards[++index]}. You have a total of {players.sumPlayer} points");
-                players.cardsPlayer.Add(cards[--index]);
-                players.cardsPlayer.Add(cards[++index]);
+                _player._sumPlayer = GetCardValue(cards[index]) + GetCardValue(cards[++index]);
+                Console.WriteLine($"\nYou have received {cards[--index]} and {cards[++index]}. You have a total of {_player._sumPlayer} points");
+                _player._cardsPlayer.Add(cards[--index]);
+                _player._cardsPlayer.Add(cards[++index]);
 
                 // Computer
-                players.sumComputer = GetCardValue(cards[++index]) + GetCardValue(cards[++index]);
-                Console.WriteLine($"\nComputer has received {cards[--index]} and {cards[++index]}. The computer has a total of {players.sumComputer} points");
-                players.cardsComputer.Add(cards[--index]);
-                players.cardsComputer.Add(cards[++index]);
+                _computer._sumPlayer = GetCardValue(cards[++index]) + GetCardValue(cards[++index]);
+                Console.WriteLine($"\nComputer has received {cards[--index]} and {cards[++index]}. The computer has a total of {_computer._sumPlayer} points");
+                _computer._cardsPlayer.Add(cards[--index]);
+                _computer._cardsPlayer.Add(cards[++index]);
 
             }
             else
@@ -133,23 +155,23 @@
                 Console.WriteLine("Randomly determined who is first: computer");
 
                 // Computer
-                players.sumComputer = GetCardValue(cards[index]) + GetCardValue(cards[++index]);
-                Console.WriteLine($"\nComputer has received {cards[--index]} and {cards[++index]}. The computer has a total of {players.sumComputer} points");
-                players.cardsComputer.Add(cards[--index]);
-                players.cardsComputer.Add(cards[++index]);
+                _computer._sumPlayer = GetCardValue(cards[index]) + GetCardValue(cards[++index]);
+                Console.WriteLine($"\nComputer has received {cards[--index]} and {cards[++index]}. The computer has a total of {_computer._sumPlayer} points");
+                _computer._cardsPlayer.Add(cards[--index]);
+                _computer._cardsPlayer.Add(cards[++index]);
 
                 // Player
-                players.sumPlayer = GetCardValue(cards[++index]) + GetCardValue(cards[++index]);
-                Console.WriteLine($"\nYou have received {cards[--index]} and {cards[++index]}. You have a total of {players.sumPlayer} points");
-                players.cardsPlayer.Add(cards[--index]);
-                players.cardsPlayer.Add(cards[++index]);
+                _player._sumPlayer = GetCardValue(cards[++index]) + GetCardValue(cards[++index]);
+                Console.WriteLine($"\nYou have received {cards[--index]} and {cards[++index]}. You have a total of {_player._sumPlayer} points");
+                _player._cardsPlayer.Add(cards[--index]);
+                _player._cardsPlayer.Add(cards[++index]);
             }
         }
 
         private int GetCardValue(string card)
         {
             var cardTitle = card.Substring(1);
-            var cardV = cardValue.Find(k => k.Key.Equals(cardTitle));
+            var cardV = _cardValue.Find(k => k.Key.Equals(cardTitle));
 
             return cardV.Value;
         }
@@ -162,41 +184,42 @@
         /// <param name="skipCounter">This variable tracks skips in card drawing. If it equals 2, the game ends.</param>
         /// <param name="playerModifier">Specifies the player or condition affecting card selection.</param>
         /// <returns></returns>
+
+        // The variable "index" represents the position of a card that the player can choose, with its initial value set to 4.
+        private int index = 4;
+
         private int ChooseCard(int leadPlayer, List<string> cards, int skipCounter, string playerModifier = "computer")
         {
-            // The variable "index" represents the position of a card that the player can choose, with its initial value set to 4.
-            var index = 4;
-            
             if (leadPlayer == 0 && playerModifier.Equals("player"))
             {
-                players.sumPlayer += GetCardValue(cards[index]);
-                players.cardsPlayer.Add(cards[index]);
+                _player._sumPlayer += GetCardValue(cards[index]);
+                _player._cardsPlayer.Add(cards[index]);
                 index++;
             }
 
-            if (leadPlayer == 0 && (Math.Abs(21 - players.sumComputer)) >= 4)
+            if (leadPlayer == 0 && (Math.Abs(21 - _computer._sumPlayer)) >= 4)
             {
-                players.sumComputer += GetCardValue(cards[index]);
-                players.cardsComputer.Add(cards[index]);
+                _computer._sumPlayer += GetCardValue(cards[index]);
+                _computer._cardsPlayer.Add(cards[index]);
                 index++;
             }
-            else if (leadPlayer == 0 && (Math.Abs(21 - players.sumComputer)) < 4)
+            else if (leadPlayer == 0 && (Math.Abs(21 - _computer._sumPlayer)) < 4)
                 skipCounter++;
 
 
-            if (leadPlayer == 1 && (Math.Abs(21 - players.sumComputer)) >= 4)
+            if (leadPlayer == 1 && (Math.Abs(21 - _computer._sumPlayer)) >= 4)
             {
-                players.sumComputer += GetCardValue(cards[index]);
-                players.cardsComputer.Add(cards[index]);
+                _computer._sumPlayer += GetCardValue(cards[index]);
+                _computer._cardsPlayer.Add(cards[index]);
                 index++;
             }
-            else if (leadPlayer == 1 && (Math.Abs(21 - players.sumComputer)) < 4)
+            else if (leadPlayer == 1 && (Math.Abs(21 - _computer._sumPlayer)) < 4)
                 skipCounter++;
 
             if (leadPlayer == 1 && playerModifier.Equals("player"))
             {
-                players.sumPlayer += GetCardValue(cards[index]);
-                players.cardsPlayer.Add(cards[index]);
+                _player._sumPlayer += GetCardValue(cards[index]);
+                _player._cardsPlayer.Add(cards[index]);
                 index++;
             }
 
@@ -207,46 +230,70 @@
         /// Checks whether the conditions for completing the game are met.
         /// </summary>
         /// <returns></returns>
-        private string CheckResultPlayers()
+        private Player CheckResultPlayers()
         {
-            var countAcesPlayer = players.cardsPlayer.Count(card => card[1].ToString().Equals(crds.title[crds.title.Length - 1]));
-            var countAcesComputer = players.cardsComputer.Count(card => card[1].ToString().Equals(crds.title[crds.title.Length - 1]));
+            return CheckTwoAces() ?? Check21Points() ?? CheckBust() ?? ComparePoints();
+        }
 
-            var winPlayer = "You won!";
-            var winComputer = "Computer won!";
-            var drawGame = "The game ended in a draw!";
+        private Player CheckTwoAces()
+        {
+            var countAcesPlayer = _player._cardsPlayer.Count(card => card[1].Equals('A'));
+            var countAcesComputer = _computer._cardsPlayer.Count(card => card[1].Equals('A'));
 
-       
             if (countAcesPlayer == 2)
-                return winPlayer;
-            else if (countAcesComputer == 2)
-                return winComputer;
+                return _player;
+               
+            if (countAcesComputer == 2)
+                return _computer;
+          
+            return null;
+        }
 
+
+        private Player Check21Points()
+        {
+            if (_player._sumPlayer == 21)
+                return _player;
             
-            if (players.sumPlayer == 21 && players.sumComputer == 21)
-                return drawGame;
-            else if (players.sumPlayer == 21)
-                return winPlayer;
-            else if (players.sumComputer == 21)
-                return winComputer;
+            if (_computer._sumPlayer == 21)
+                return _computer;
+            
+            return null;
+        }
 
-     
-            bool playerBust = players.sumPlayer > 21;
-            bool computerBust = players.sumComputer > 21;
+        private Player CheckBust()
+        {
+            bool playerBust = _player._sumPlayer > 21;
+            bool computerBust = _computer._sumPlayer > 21;
+
+            if (playerBust && computerBust)
+            {
+                if (_player._sumPlayer > _computer._sumPlayer)
+                    return _computer;
+
+                if (_player._sumPlayer < _computer._sumPlayer)
+                    return _player;
+            }
+               
 
             if (playerBust && !computerBust)
-                return winComputer;
-            else if (!playerBust && computerBust)
-                return winPlayer;
-            else if (playerBust && computerBust)
-            {
-                if (players.sumPlayer > players.sumComputer)
-                    return winComputer;
-                else if (players.sumPlayer < players.sumComputer)
-                    return winPlayer;
-            }
+                return _computer;
+            
+            if (!playerBust && computerBust)
+                return _player;
+            
+            return null;
+        }
 
-            return "Continue";
+        private Player ComparePoints()
+        {
+            if (_player._sumPlayer > _computer._sumPlayer)
+                return _player;
+            
+            if (_player._sumPlayer < _computer._sumPlayer)
+                return _computer;
+            
+            return null;
         }
     }
 }

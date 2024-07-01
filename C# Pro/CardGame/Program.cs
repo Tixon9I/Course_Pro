@@ -4,16 +4,11 @@
     {
         static void Main(string[] args)
         {
-            CardGame game = new CardGame();
-            Cards cards = new Cards();
-            Statistics stats = new Statistics();
-
-            var listCard = cards.OrganizedCards();
+            CardGame _game = new CardGame();
 
             var stopLoop = true;
             var keyContinue = false;
-            var random = new Random();
-
+            
             Console.Write(@"Welcome to the card game ""21""
 Rules:
 - Each card has its own value: Ace - 11 points; King - 4 points; Queen - 3 points; Jack - 2 points; Other cards at their face value.
@@ -34,9 +29,8 @@ If everything is clear, enter ""C"" to start the game or exit with ""E"": ");
                 if (key.Equals("C"))
                 {
                     Console.Clear();
-                    var leadPlayer = random.Next(0, 2);
 
-                    game.MainCycleGame(listCard, leadPlayer);
+                    _game.MainCycleGame();
 
                     keyContinue = true;
                 }
@@ -50,14 +44,8 @@ If everything is clear, enter ""C"" to start the game or exit with ""E"": ");
                 {
                     Console.Clear();
                     keyContinue = false;
-                    var statistics = stats.ViewStatisticsGames();
-
-                    Console.WriteLine($"Your last game/s:");
-
-                    foreach (var lastGame in statistics)
-                        Console.Write(lastGame.ToString());
-                    Console.WriteLine();
-
+                    Statistics.ViewStatisticsGames();
+                    
                     Console.Write("Please enter \"C\" to start next game or exit with \"E\": ");
                 }
                 else
