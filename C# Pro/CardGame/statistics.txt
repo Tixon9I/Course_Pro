@@ -1,0 +1,7 @@
+1. Player < Computer
+2. Player > Computer
+3. Player = Computer
+4. Player > Computer
+5. Player < Computer
+6. Player < Computer
+7. Player < Computer
